@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 
 const VelplaLanding = () => {
   const [email, setEmail] = useState('');
@@ -46,10 +48,13 @@ const VelplaLanding = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call - replace with actual email service integration
     try {
-      // Example: await fetch('/api/waitlist', { method: 'POST', body: JSON.stringify({ email }) });
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save email to Firebase
+      await addDoc(collection(db, 'waitlist'), {
+        email: email.toLowerCase().trim(),
+        timestamp: Timestamp.now(),
+        source: 'landing_page'
+      });
       
       setSubmitStatus('success');
       setEmail('');
@@ -58,6 +63,7 @@ const VelplaLanding = () => {
         setSubmitStatus('');
       }, 3000);
     } catch (error) {
+      console.error('Error adding email:', error);
       setSubmitStatus('error');
       setTimeout(() => {
         setSubmitStatus('');
